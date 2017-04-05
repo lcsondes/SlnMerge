@@ -68,23 +68,28 @@ namespace SlnMerge
 
         private static void SetupGitHooks()
         {
+            var hooks = new[] { "post-checkout", "post-merge" };
+
             foreach (var slnfolder in solutions.FileList
                                                .Select(file => Path.GetDirectoryName(file))
                                                .Distinct())
             {
-                var hook = Path.Combine(slnfolder, ".git", "hooks", "post-checkout");
-                if (File.Exists(hook))
+                foreach (var hook in hooks)
                 {
-                    Console.Error.WriteLine($"Not writing git hook for {slnfolder}, post-checkout already exists");
-                    continue;
-                }
-                Directory.CreateDirectory(Path.GetDirectoryName(hook));
-                using (var wrt = new StreamWriter(File.Create(hook)))
-                {
-                    wrt.WriteLine("#!/bin/sh");
-                    wrt.WriteLine("cd ..");
-                    wrt.WriteLine("./slnmerge.exe");
-                    wrt.WriteLine($"echo {outfile} updated");
+                    var hookfile = Path.Combine(slnfolder, ".git", "hooks", hook);
+                    if (File.Exists(hookfile))
+                    {
+                        Console.Error.WriteLine($"Not writing git hook for {slnfolder}, {hook} already exists");
+                        continue;
+                    }
+                    Directory.CreateDirectory(Path.GetDirectoryName(hookfile));
+                    using (var wrt = new StreamWriter(File.Create(hookfile)))
+                    {
+                        wrt.WriteLine("#!/bin/sh");
+                        wrt.WriteLine("cd ..");
+                        wrt.WriteLine("./slnmerge.exe");
+                        wrt.WriteLine($"echo {outfile} updated");
+                    }
                 }
             }
             Console.WriteLine("Git hooks installed");

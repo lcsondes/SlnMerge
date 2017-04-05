@@ -1,5 +1,5 @@
 ﻿/* 
- * Copyright © 2016 László Csöndes
+ * Copyright © 2016-2017 László Csöndes
  * 
  * This file is part of SlnMerge.
  * 
